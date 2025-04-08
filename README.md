@@ -14,5 +14,5 @@ O sistema está sendo desenvolvido em dart com o framework flutter seguindo os p
 
 ## 👨‍💻 Autores
 
-| [<img src="https://github.com/emannuelop/LibraySpring/blob/main/imagens/emannuel.png" width=115><br><sub>Emannuel Oliveira</sub>](https://github.com/emannuelop) |  [<img src="https://github.com/emannuelop/LibraySpring/blob/main/imagens/erick.jpg" width=115><br><sub>Erick Santos</sub>](https://github.com/ericksantos37) |
+| [<img src="https://github.com/emannuelop/DispositivosMoveisA1/blob/main/imagens/emannuel.png" width=115><br><sub>Emannuel Oliveira</sub>](https://github.com/emannuelop) |  [<img src="https://github.com/emannuelop/DispositivosMoveisA1/blob/main/imagens/erick.jpg" width=115><br><sub>Erick Santos</sub>](https://github.com/ericksantos37) |
 | :---: | :---: |

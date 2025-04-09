@@ -93,22 +93,16 @@ class _ListaUsuariosScaffoldState extends State<ListaUsuariosScaffold> {
   }
 
   Future<void> editarUsuario(int index, Usuario usuario) async {
-    print('Editando usuário com ID: ${usuario.id}');
     final response = await http.put(
       Uri.parse('$apiUrl/${usuario.id}'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(usuario.toJson()),
     );
 
-    print('Status: ${response.statusCode}');
-    print('Resposta: ${response.body}');
-
     if (response.statusCode == 200) {
       setState(() {
         usuarios[index] = usuario;
       });
-    } else {
-      print('Erro ao editar: ${response.statusCode}');
     }
   }
 
@@ -130,44 +124,18 @@ class _ListaUsuariosScaffoldState extends State<ListaUsuariosScaffold> {
         title: Text("Lista de Usuários"),
         backgroundColor: Colors.blue,
       ),
-      body: ListView.builder(
-        itemCount: usuarios.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: ListTile(
-              leading: usuarios[index].imagemUrl.isNotEmpty
-                  ? CircleAvatar(
-                backgroundImage: NetworkImage(usuarios[index].imagemUrl),
-              )
-                  : Icon(Icons.person),
-              title: Text(usuarios[index].nome),
-              subtitle: Text('Login: ${usuarios[index].login}\nPokémon: ${usuarios[index].pokemonFavorito}'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, color: Colors.green),
-                    onPressed: () async {
-                      final usuarioAtualizado = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FormularioUsuarioScaffold(usuario: usuarios[index]),
-                        ),
-                      );
-                      if (usuarioAtualizado != null && usuarioAtualizado.id.isNotEmpty) {
-                        editarUsuario(index, usuarioAtualizado);
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => excluirUsuario(index),
-                  ),
-                ],
-              ),
+      body: ListaUsuarios(
+        usuarios: usuarios,
+        onEditar: (index, usuario) async {
+          final usuarioAtualizado = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FormularioUsuarioScaffold(usuario: usuario),
             ),
           );
+          if (usuarioAtualizado != null) editarUsuario(index, usuarioAtualizado);
         },
+        onExcluir: excluirUsuario,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -177,11 +145,67 @@ class _ListaUsuariosScaffoldState extends State<ListaUsuariosScaffold> {
               builder: (context) => FormularioUsuarioScaffold(),
             ),
           );
-          if (usuarioNovo != null) {
-            adicionarUsuario(usuarioNovo);
-          }
+          if (usuarioNovo != null) adicionarUsuario(usuarioNovo);
         },
         child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class ListaUsuarios extends StatelessWidget {
+  final List<Usuario> usuarios;
+  final Function(int, Usuario) onEditar;
+  final Function(int) onExcluir;
+
+  ListaUsuarios({
+    required this.usuarios,
+    required this.onEditar,
+    required this.onExcluir,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: usuarios.length,
+      itemBuilder: (context, index) {
+        return ItemListaUsuario(
+          usuario: usuarios[index],
+          onEditar: () => onEditar(index, usuarios[index]),
+          onExcluir: () => onExcluir(index),
+        );
+      },
+    );
+  }
+}
+
+class ItemListaUsuario extends StatelessWidget {
+  final Usuario usuario;
+  final VoidCallback onEditar;
+  final VoidCallback onExcluir;
+
+  ItemListaUsuario({
+    required this.usuario,
+    required this.onEditar,
+    required this.onExcluir,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: usuario.imagemUrl.isNotEmpty
+            ? CircleAvatar(backgroundImage: NetworkImage(usuario.imagemUrl))
+            : Icon(Icons.person),
+        title: Text(usuario.nome),
+        subtitle: Text('Login: ${usuario.login}\nPokémon: ${usuario.pokemonFavorito}'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(icon: Icon(Icons.edit, color: Colors.green), onPressed: onEditar),
+            IconButton(icon: Icon(Icons.delete, color: Colors.red), onPressed: onExcluir),
+          ],
+        ),
       ),
     );
   }
@@ -249,7 +273,7 @@ class _FormularioUsuarioScaffoldState extends State<FormularioUsuarioScaffold> {
     String imagemUrl = await buscarImagemPokemon(pokemon);
 
     final novoUsuario = Usuario(
-      widget.usuario?.id ?? '', // Mantém o ID se for edição
+      widget.usuario?.id ?? '',
       nome,
       login,
       senha,
@@ -271,28 +295,16 @@ class _FormularioUsuarioScaffoldState extends State<FormularioUsuarioScaffold> {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-            TextField(
-              controller: controllerNome,
-              decoration: InputDecoration(labelText: "Nome"),
-            ),
-            TextField(
-              controller: controllerLogin,
-              decoration: InputDecoration(labelText: "Login"),
-            ),
+            TextField(controller: controllerNome, decoration: InputDecoration(labelText: "Nome")),
+            TextField(controller: controllerLogin, decoration: InputDecoration(labelText: "Login")),
             TextField(
               controller: controllerSenha,
               decoration: InputDecoration(labelText: "Senha"),
               obscureText: true,
             ),
-            TextField(
-              controller: controllerPokemon,
-              decoration: InputDecoration(labelText: "Pokémon Favorito"),
-            ),
+            TextField(controller: controllerPokemon, decoration: InputDecoration(labelText: "Pokémon Favorito")),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: salvarUsuario,
-              child: Text("Salvar"),
-            ),
+            ElevatedButton(onPressed: salvarUsuario, child: Text("Salvar")),
           ],
         ),
       ),

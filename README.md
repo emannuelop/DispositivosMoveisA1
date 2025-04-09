@@ -12,10 +12,11 @@ O sistema está sendo desenvolvido em dart com o framework flutter seguindo os p
 - ``Flutter``
 - ``Programação Orientada a Objetos``
 
-## APIs
+## API
 Este projeto utiliza a PokeAPI para buscar informações e imagens dos Pokémon. A PokeAPI é uma API gratuita que fornece dados completos sobre a franquia Pokémon. 
 
-O usuário digita o nome do Pokémon, a API busca a imagem correspondente e ela é utilizada como foto de perfil.
+O aplicativo possui um sistema de CRUD para gerenciamento de uma lista de usuários. No momento do cadastro, são solicitados o nome, login, senha e o Pokémon favorito do usuário. Ao informar o nome do Pokémon, o aplicativo faz uma requisição a uma API, que retorna a imagem correspondente, a qual será utilizada como foto de perfil do usuário. Após o cadastro, todas as funcionalidades de CRUD ficam disponíveis, permitindo, inclusive, a alteração da imagem de perfil a qualquer momento.
+
 
 ## 👨‍💻 Autores
 

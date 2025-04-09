@@ -16,13 +16,35 @@ class UserApp extends StatelessWidget {
 }
 
 class Usuario {
+  String id;
   String nome;
   String login;
   String senha;
   String pokemonFavorito;
   String imagemUrl;
 
-  Usuario(this.nome, this.login, this.senha, this.pokemonFavorito, this.imagemUrl);
+  Usuario(this.id, this.nome, this.login, this.senha, this.pokemonFavorito, this.imagemUrl);
+
+  factory Usuario.fromJson(Map<String, dynamic> json) {
+    return Usuario(
+      json['id'].toString(),
+      json['nome'],
+      json['login'],
+      json['senha'],
+      json['pokemonFavorito'],
+      json['imagemUrl'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'nome': nome,
+      'login': login,
+      'senha': senha,
+      'pokemonFavorito': pokemonFavorito,
+      'imagemUrl': imagemUrl,
+    };
+  }
 
   @override
   String toString() {
@@ -37,23 +59,68 @@ class ListaUsuariosScaffold extends StatefulWidget {
 
 class _ListaUsuariosScaffoldState extends State<ListaUsuariosScaffold> {
   List<Usuario> usuarios = [];
+  final String apiUrl = "https://67f6f5ef42d6c71cca63bbc9.mockapi.io/api/v1/usuario";
 
-  void adicionarUsuario(Usuario usuario) {
-    setState(() {
-      usuarios.add(usuario);
-    });
+  @override
+  void initState() {
+    super.initState();
+    carregarUsuarios();
   }
 
-  void editarUsuario(int index, Usuario usuario) {
-    setState(() {
-      usuarios[index] = usuario;
-    });
+  Future<void> carregarUsuarios() async {
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        usuarios = data.map((json) => Usuario.fromJson(json)).toList();
+      });
+    }
   }
 
-  void excluirUsuario(int index) {
-    setState(() {
-      usuarios.removeAt(index);
-    });
+  Future<void> adicionarUsuario(Usuario usuario) async {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(usuario.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      final novoUsuario = Usuario.fromJson(json.decode(response.body));
+      setState(() {
+        usuarios.add(novoUsuario);
+      });
+    }
+  }
+
+  Future<void> editarUsuario(int index, Usuario usuario) async {
+    print('Editando usuário com ID: ${usuario.id}');
+    final response = await http.put(
+      Uri.parse('$apiUrl/${usuario.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(usuario.toJson()),
+    );
+
+    print('Status: ${response.statusCode}');
+    print('Resposta: ${response.body}');
+
+    if (response.statusCode == 200) {
+      setState(() {
+        usuarios[index] = usuario;
+      });
+    } else {
+      print('Erro ao editar: ${response.statusCode}');
+    }
+  }
+
+  Future<void> excluirUsuario(int index) async {
+    final usuario = usuarios[index];
+    final response = await http.delete(Uri.parse('$apiUrl/${usuario.id}'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        usuarios.removeAt(index);
+      });
+    }
   }
 
   @override
@@ -87,7 +154,7 @@ class _ListaUsuariosScaffoldState extends State<ListaUsuariosScaffold> {
                           builder: (context) => FormularioUsuarioScaffold(usuario: usuarios[index]),
                         ),
                       );
-                      if (usuarioAtualizado != null) {
+                      if (usuarioAtualizado != null && usuarioAtualizado.id.isNotEmpty) {
                         editarUsuario(index, usuarioAtualizado);
                       }
                     },
@@ -147,14 +214,23 @@ class _FormularioUsuarioScaffoldState extends State<FormularioUsuarioScaffold> {
   }
 
   Future<String> buscarImagemPokemon(String nomePokemon) async {
-    final url = 'https://pokeapi.co/api/v2/pokemon/${nomePokemon.toLowerCase()}';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['sprites']['front_default'] ?? '';
-    } else {
-      return '';
+    try {
+      final url = 'https://pokeapi.co/api/v2/pokemon/${nomePokemon.toLowerCase()}';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['sprites']['front_default'] ?? imagemPadrao();
+      } else {
+        return imagemPadrao();
+      }
+    } catch (e) {
+      return imagemPadrao();
     }
+  }
+
+  String imagemPadrao() {
+    return 'https://avatars.githubusercontent.com/u/583231?v=4';
   }
 
   void salvarUsuario() async {
@@ -172,7 +248,15 @@ class _FormularioUsuarioScaffoldState extends State<FormularioUsuarioScaffold> {
 
     String imagemUrl = await buscarImagemPokemon(pokemon);
 
-    final novoUsuario = Usuario(nome, login, senha, pokemon, imagemUrl);
+    final novoUsuario = Usuario(
+      widget.usuario?.id ?? '', // Mantém o ID se for edição
+      nome,
+      login,
+      senha,
+      pokemon,
+      imagemUrl,
+    );
+
     Navigator.pop(context, novoUsuario);
   }
 

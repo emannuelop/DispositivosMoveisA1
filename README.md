@@ -12,6 +12,11 @@ O sistema está sendo desenvolvido em dart com o framework flutter seguindo os p
 - ``Flutter``
 - ``Programação Orientada a Objetos``
 
+## APIs
+Este projeto utiliza a PokeAPI para buscar informações e imagens dos Pokémon. A PokeAPI é uma API gratuita que fornece dados completos sobre a franquia Pokémon. 
+
+O usuário digita o nome do Pokémon, a API busca a imagem correspondente e ela é utilizada como foto de perfil.
+
 ## 👨‍💻 Autores
 
 | [<img src="https://github.com/emannuelop/DispositivosMoveisA1/blob/main/imagens/emannuel.png" width=115><br><sub>Emannuel Oliveira</sub>](https://github.com/emannuelop) |  [<img src="https://github.com/emannuelop/DispositivosMoveisA1/blob/main/imagens/erick.jpg" width=115><br><sub>Erick Santos</sub>](https://github.com/ericksantos37) |

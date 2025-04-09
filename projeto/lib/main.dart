@@ -185,34 +185,31 @@ class _FormularioUsuarioScaffoldState extends State<FormularioUsuarioScaffold> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: controllerNome,
-                decoration: InputDecoration(labelText: "Nome"),
-              ),
-              TextField(
-                controller: controllerLogin,
-                decoration: InputDecoration(labelText: "Login"),
-              ),
-              TextField(
-                controller: controllerSenha,
-                decoration: InputDecoration(labelText: "Senha"),
-                obscureText: true,
-              ),
-              TextField(
-                controller: controllerPokemon,
-                decoration: InputDecoration(labelText: "Pokémon Favorito"),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: salvarUsuario,
-                child: Text("Salvar"),
-              ),
-            ],
-          ),
+        child: ListView(
+          children: [
+            TextField(
+              controller: controllerNome,
+              decoration: InputDecoration(labelText: "Nome"),
+            ),
+            TextField(
+              controller: controllerLogin,
+              decoration: InputDecoration(labelText: "Login"),
+            ),
+            TextField(
+              controller: controllerSenha,
+              decoration: InputDecoration(labelText: "Senha"),
+              obscureText: true,
+            ),
+            TextField(
+              controller: controllerPokemon,
+              decoration: InputDecoration(labelText: "Pokémon Favorito"),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: salvarUsuario,
+              child: Text("Salvar"),
+            ),
+          ],
         ),
       ),
     );
